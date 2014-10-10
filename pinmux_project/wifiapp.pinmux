@@ -175,10 +175,10 @@
 						"selectedUseCase": "GPIO",
 						"pinRequirements": [
 							{
-								"used": false,
+								"used": true,
 								"solution": {
-									"nameDecoratorText": "",
-									"assignedToName": "",
+									"nameDecoratorText": "GPIO00",
+									"assignedToName": "50",
 									"errorText": "",
 									"warningText": "",
 									"errorDetailsText": [],
@@ -188,8 +188,8 @@
 								"type": "Single",
 								"name": "GPIO00",
 								"interfacePinName": "GPIO00",
-								"input": true,
-								"output": false,
+								"input": false,
+								"output": true,
 								"outputOpenDrain": false
 							},
 							{
@@ -247,10 +247,10 @@
 								"outputOpenDrain": false
 							},
 							{
-								"used": false,
+								"used": true,
 								"solution": {
-									"nameDecoratorText": "",
-									"assignedToName": "",
+									"nameDecoratorText": "GPIO04",
+									"assignedToName": "59",
 									"errorText": "",
 									"warningText": "",
 									"errorDetailsText": [],
@@ -260,8 +260,8 @@
 								"type": "Single",
 								"name": "GPIO04",
 								"interfacePinName": "GPIO04",
-								"input": true,
-								"output": false,
+								"input": false,
+								"output": true,
 								"outputOpenDrain": false
 							},
 							{
@@ -283,10 +283,10 @@
 								"outputOpenDrain": false
 							},
 							{
-								"used": false,
+								"used": true,
 								"solution": {
-									"nameDecoratorText": "",
-									"assignedToName": "",
+									"nameDecoratorText": "GPIO06",
+									"assignedToName": "61",
 									"errorText": "",
 									"warningText": "",
 									"errorDetailsText": [],
@@ -296,15 +296,15 @@
 								"type": "Single",
 								"name": "GPIO06",
 								"interfacePinName": "GPIO06",
-								"input": true,
-								"output": false,
+								"input": false,
+								"output": true,
 								"outputOpenDrain": false
 							},
 							{
-								"used": false,
+								"used": true,
 								"solution": {
-									"nameDecoratorText": "",
-									"assignedToName": "",
+									"nameDecoratorText": "GPIO07",
+									"assignedToName": "62",
 									"errorText": "",
 									"warningText": "",
 									"errorDetailsText": [],
@@ -314,8 +314,8 @@
 								"type": "Single",
 								"name": "GPIO07",
 								"interfacePinName": "GPIO07",
-								"input": true,
-								"output": false,
+								"input": false,
+								"output": true,
 								"outputOpenDrain": false
 							},
 							{
@@ -499,10 +499,10 @@
 								"outputOpenDrain": false
 							},
 							{
-								"used": true,
+								"used": false,
 								"solution": {
-									"nameDecoratorText": "GPIO22",
-									"assignedToName": "15",
+									"nameDecoratorText": "",
+									"assignedToName": "",
 									"errorText": "",
 									"warningText": "",
 									"errorDetailsText": [],
@@ -607,10 +607,10 @@
 								"outputOpenDrain": false
 							},
 							{
-								"used": false,
+								"used": true,
 								"solution": {
-									"nameDecoratorText": "",
-									"assignedToName": "",
+									"nameDecoratorText": "GPIO30",
+									"assignedToName": "53",
 									"errorText": "",
 									"warningText": "",
 									"errorDetailsText": [],
@@ -620,8 +620,8 @@
 								"type": "Single",
 								"name": "GPIO30",
 								"interfacePinName": "GPIO30",
-								"input": true,
-								"output": false,
+								"input": false,
+								"output": true,
 								"outputOpenDrain": false
 							},
 							{
@@ -748,16 +748,27 @@
 			}
 		},
 		"devicePinMap": {
-			"15": {
-				"nameDecoratorText": "15",
-				"assignedToName": "GPIO22",
+			"50": {
+				"nameDecoratorText": "50",
+				"assignedToName": "GPIO00",
 				"errorText": "",
 				"warningText": "",
 				"warningDetailsText": [],
 				"errorDetailsText": [],
 				"requirementName": "My GPIO 1",
 				"requirementId": "My GPIO 1",
-				"interfacePin": "GPIO22"
+				"interfacePin": "GPIO00"
+			},
+			"53": {
+				"nameDecoratorText": "53",
+				"assignedToName": "GPIO30",
+				"errorText": "",
+				"warningText": "",
+				"warningDetailsText": [],
+				"errorDetailsText": [],
+				"requirementName": "My GPIO 1",
+				"requirementId": "My GPIO 1",
+				"interfacePin": "GPIO30"
 			},
 			"55": {
 				"nameDecoratorText": "55",
@@ -791,6 +802,39 @@
 				"requirementName": "My GPIO 1",
 				"requirementId": "My GPIO 1",
 				"interfacePin": "GPIO03"
+			},
+			"59": {
+				"nameDecoratorText": "59",
+				"assignedToName": "GPIO04",
+				"errorText": "",
+				"warningText": "",
+				"warningDetailsText": [],
+				"errorDetailsText": [],
+				"requirementName": "My GPIO 1",
+				"requirementId": "My GPIO 1",
+				"interfacePin": "GPIO04"
+			},
+			"61": {
+				"nameDecoratorText": "61",
+				"assignedToName": "GPIO06",
+				"errorText": "",
+				"warningText": "",
+				"warningDetailsText": [],
+				"errorDetailsText": [],
+				"requirementName": "My GPIO 1",
+				"requirementId": "My GPIO 1",
+				"interfacePin": "GPIO06"
+			},
+			"62": {
+				"nameDecoratorText": "62",
+				"assignedToName": "GPIO07",
+				"errorText": "",
+				"warningText": "",
+				"warningDetailsText": [],
+				"errorDetailsText": [],
+				"requirementName": "My GPIO 1",
+				"requirementId": "My GPIO 1",
+				"interfacePin": "GPIO07"
 			},
 			"64": {
 				"nameDecoratorText": "64",

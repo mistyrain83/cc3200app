@@ -48,6 +48,8 @@
 #include "do.h"
 #include "pwmout.h"
 
+#include "main.h"
+
 #define APPLICATION_VERSION              "0.1.0"
 #define APP_NAME                         "Wifi App"
 #define OOB_TASK_PRIORITY                1
@@ -313,6 +315,7 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
                            g_ucConnectionBSSID[1],g_ucConnectionBSSID[2],
                            g_ucConnectionBSSID[3],g_ucConnectionBSSID[4],
                            g_ucConnectionBSSID[5]);
+				UART_PRINT("pEventData->reason_code = 0x%x \n\r", pEventData->reason_code);
             }
             memset(g_ucConnectionSSID,0,sizeof(g_ucConnectionSSID));
             memset(g_ucConnectionBSSID,0,sizeof(g_ucConnectionBSSID));
@@ -741,7 +744,8 @@ void SimpleLinkSockEventHandler(SlSockEvent_t *pSock)
 //! \return None
 //!
 //*****************************************************************************
-static void InitializeAppVariables()
+static void 
+InitializeAppVariables(void)
 {
     g_ulStatus = 0;
     memset(g_ucConnectionSSID,0,sizeof(g_ucConnectionSSID));
@@ -1204,12 +1208,14 @@ void SwIntHandler(void)
 	static long L_prevButtonState = 0x00;    
 	static long L_buttonState     = 0x00;
 
-	if(MAP_GPIOIntStatus(GPIOA2_BASE,1) & 0x40)
+	if(MAP_GPIOIntStatus(BUTTON_PORT, true) & BUTTON_PINS)
 	{
-		MAP_GPIOIntClear(GPIOA2_BASE, 0x40);
+		MAP_GPIOIntClear(BUTTON_PORT, BUTTON_PINS);
 	}
-	L_buttonState = GPIOPinRead(GPIOA2_BASE, 0x40);
-	if( !(L_prevButtonState & 0x40) && (L_buttonState & 0x40) )
+	
+	L_buttonState = GPIOPinRead(BUTTON_PORT, BUTTON_PINS);
+	
+	if( !(L_prevButtonState & BUTTON_PINS) && (L_buttonState & BUTTON_PINS) )
 	{
 		g_iSwPressedNum++;
 		if(g_iSwPressedNum == 1)
@@ -1220,11 +1226,11 @@ void SwIntHandler(void)
 		    Timer_IF_Start(TIMERA0_BASE, TIMER_A,
 		                  PERIODIC_TEST_CYCLES * PERIODIC_TEST_LOOPS);
 		}
-		UART_PRINT("sw2 pressed\n");
+		UART_PRINT("[INFO] BUTTON pressed\n\r");
 	}
+	
 	L_prevButtonState = L_buttonState;
 	MAP_UtilsDelay(SWITCH_BOUNCE_TIME);
-	
 }
 
 //*****************************************************************************
@@ -1319,7 +1325,6 @@ void main()
 {
     long   lRetVal = -1;
 
-
     //
     // Board Initilization
     //
@@ -1330,12 +1335,7 @@ void main()
     //
     PinMuxConfig();
 
-    PinConfigSet(PIN_58,PIN_STRENGTH_2MA|PIN_STRENGTH_4MA,PIN_TYPE_STD_PD);
-    
-    // init sw2 interrupt
-    GPIO_IF_ConfigureNIntEnable(GPIOA2_BASE, 0x40, GPIO_BOTH_EDGES, SwIntHandler);
-
-	// init timer interrupt
+	// Init button timer interrupt handler
 	//
     // Configuring the timers
     //
@@ -1345,7 +1345,13 @@ void main()
     //
     Timer_IF_IntSetup(TIMERA0_BASE, TIMER_A, TimerIntHandler);
 
-	// init timer cycle
+	//
+    // Init button interrupt handler
+    // BUTTON - PIN_58 - GPIO_03
+    //
+    GPIO_IF_ConfigureNIntEnable(BUTTON_PORT, BUTTON_PINS, GPIO_BOTH_EDGES, SwIntHandler);
+
+	// Init cycle timer interrupt handler
 	//
     // Configuring the timers
     //
@@ -1360,7 +1366,8 @@ void main()
 	Timer_IF_Start(TIMERA1_BASE, TIMER_A,
                   PERIODIC_TEST_CYCLES * PERIODIC_TEST_LOOPS / 50);
 
-	// init timer pwm
+#if defined(P_DIMMER)
+	// Init timer pwm
 	//
     // TIMERA3 (TIMER A) as GREEN of RGB light. GPIO 11 --> PWM_7
     //
@@ -1369,7 +1376,7 @@ void main()
 
     MAP_TimerEnable(TIMERA3_BASE,TIMER_B);
 	UpdateDutyCycle(TIMERA3_BASE, TIMER_B, 0);
-	
+#endif
 
     // Initialize Global Variables
     InitializeAppVariables();

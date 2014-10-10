@@ -36,7 +36,7 @@
 //
 //*****************************************************************************
 
-// This file was automatically generated on 2014年9月16日 at 上午6:35:54
+// This file was automatically generated on 2014年10月11日 at 上午12:03:07
 // by TI PinMux version 3.0.334 
 //
 //*****************************************************************************
@@ -58,7 +58,7 @@ void PinMuxConfig(void)
 	PRCMPeripheralClkEnable(PRCM_UARTA0, PRCM_RUN_MODE_CLK);
 	PRCMPeripheralClkEnable(PRCM_GPIOA0, PRCM_RUN_MODE_CLK);
 	PRCMPeripheralClkEnable(PRCM_GPIOA1, PRCM_RUN_MODE_CLK);
-	PRCMPeripheralClkEnable(PRCM_GPIOA2, PRCM_RUN_MODE_CLK);
+	PRCMPeripheralClkEnable(PRCM_GPIOA3, PRCM_RUN_MODE_CLK);
 
 	//
     // Configure PIN_55 for UART0 UART0_TX
@@ -71,10 +71,34 @@ void PinMuxConfig(void)
 	PinTypeUART(PIN_57, PIN_MODE_3);
 
 	//
+    // Configure PIN_50 for GPIO Output
+    //
+	PinTypeGPIO(PIN_50, PIN_MODE_0, false);
+	GPIODirModeSet(GPIOA0_BASE, 0x1, GPIO_DIR_MODE_OUT);
+
+	//
     // Configure PIN_58 for GPIO Input
     //
 	PinTypeGPIO(PIN_58, PIN_MODE_0, false);
 	GPIODirModeSet(GPIOA0_BASE, 0x8, GPIO_DIR_MODE_IN);
+
+	//
+    // Configure PIN_59 for GPIO Output
+    //
+	PinTypeGPIO(PIN_59, PIN_MODE_0, false);
+	GPIODirModeSet(GPIOA0_BASE, 0x10, GPIO_DIR_MODE_OUT);
+
+	//
+    // Configure PIN_61 for GPIO Output
+    //
+	PinTypeGPIO(PIN_61, PIN_MODE_0, false);
+	GPIODirModeSet(GPIOA0_BASE, 0x40, GPIO_DIR_MODE_OUT);
+
+	//
+    // Configure PIN_62 for GPIO Output
+    //
+	PinTypeGPIO(PIN_62, PIN_MODE_0, false);
+	GPIODirModeSet(GPIOA0_BASE, 0x80, GPIO_DIR_MODE_OUT);
 
 	//
     // Configure PIN_64 for GPIO Output
@@ -83,8 +107,8 @@ void PinMuxConfig(void)
 	GPIODirModeSet(GPIOA1_BASE, 0x2, GPIO_DIR_MODE_OUT);
 
 	//
-    // Configure PIN_15 for GPIO Input
+    // Configure PIN_53 for GPIO Output
     //
-	PinTypeGPIO(PIN_15, PIN_MODE_0, false);
-	GPIODirModeSet(GPIOA2_BASE, 0x40, GPIO_DIR_MODE_IN);
+	PinTypeGPIO(PIN_53, PIN_MODE_0, false);
+	GPIODirModeSet(GPIOA3_BASE, 0x40, GPIO_DIR_MODE_OUT);
 }
