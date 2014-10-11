@@ -2,38 +2,9 @@
 // gpio_if.c
 //
 // GPIO interface APIs, this common interface file helps to configure,
-// set/toggle only 3 GPIO pins which are connected to 3 LEDs of CC32xx Launchpad
+// set/toggle only 2 GPIO pins which are connected to 2 LEDs of backplane
 //
-// Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/ 
-// 
-// 
-//  Redistribution and use in source and binary forms, with or without 
-//  modification, are permitted provided that the following conditions 
-//  are met:
-//
-//    Redistributions of source code must retain the above copyright 
-//    notice, this list of conditions and the following disclaimer.
-//
-//    Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the 
-//    documentation and/or other materials provided with the   
-//    distribution.
-//
-//    Neither the name of Texas Instruments Incorporated nor the names of
-//    its contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-//  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-//  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-//  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-//  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-//  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-//  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// All LED Pull-Up, turn on LED when pin output low level
 //
 //*****************************************************************************
 
@@ -76,13 +47,11 @@ static unsigned long ulReg[]=
 //*****************************************************************************
 // Variables to store TIMER Port,Pin values
 //*****************************************************************************
-unsigned int g_uiLED1Port = 0,g_uiLED2Port = 0,g_uiLED3Port = 0;
-unsigned char g_ucLED1Pin,g_ucLED2Pin,g_ucLED3Pin;
+unsigned int g_uiLED1Port = 3,g_uiLED2Port = 0;
+unsigned char g_ucLED1Pin,g_ucLED2Pin;
 
-#define PIN_LED1 9
-#define PIN_LED2 10
-#define PIN_LED3 11
-
+#define PIN_LED1 0
+#define PIN_LED2 30
 
 //****************************************************************************
 //                      LOCAL FUNCTION DEFINITIONS                          
@@ -133,16 +102,8 @@ GPIO_IF_LedConfigure(unsigned char ucPins)
   if(ucPins & LED2)
   {
     GPIO_IF_GetPortNPin(PIN_LED2,
-                  &g_uiLED2Port,
-          &g_ucLED2Pin);
-  }
-
-  if(ucPins & LED3)
-  {
-    GPIO_IF_GetPortNPin(PIN_LED3,
-                      &g_uiLED3Port,
-                      &g_ucLED3Pin);
-
+                  		&g_uiLED2Port,
+          				&g_ucLED2Pin);
   }
 
 }
@@ -165,20 +126,15 @@ GPIO_IF_LedOn(char ledNum)
     {
         case MCU_ON_IND:
         case MCU_EXECUTE_SUCCESS_IND:
+		case MCU_SENDING_DATA_IND:
+        case MCU_EXECUTE_FAIL_IND:
         case MCU_GREEN_LED_GPIO:
         {
           /* Switch ON GREEN LED */
-          GPIO_IF_Set(PIN_LED3, g_uiLED3Port, g_ucLED3Pin, 1);
+          GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 0);
           break;
         }
-        case MCU_SENDING_DATA_IND:
-        case MCU_EXECUTE_FAIL_IND:
-        case MCU_ORANGE_LED_GPIO:
-        {
-          /* Switch ON ORANGE LED */
-          GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 1);
-          break;
-        }
+        
         case MCU_ASSOCIATED_IND:
         case MCU_IP_ALLOC_IND:
         case MCU_SERVER_INIT_IND:
@@ -186,15 +142,15 @@ GPIO_IF_LedOn(char ledNum)
         case MCU_RED_LED_GPIO:
         {
           /* Switch ON RED LED */
-          GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 1);
+          GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 0);
           break;
         }
+		
         case MCU_ALL_LED_IND:
         {
           /* Switch ON ALL LEDs LED */
-          GPIO_IF_Set(PIN_LED3, g_uiLED3Port, g_ucLED3Pin, 1);
-          GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 1);
-          GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 1);
+          GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 0);
+          GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 0);
           break;
         }
         default:
@@ -220,20 +176,15 @@ GPIO_IF_LedOff(char ledNum)
   {
     case MCU_ON_IND:
     case MCU_EXECUTE_SUCCESS_IND:
+	case MCU_SENDING_DATA_IND:
+    case MCU_EXECUTE_FAIL_IND:
     case MCU_GREEN_LED_GPIO:
     {
       /* Switch OFF GREEN LED */
-      GPIO_IF_Set(PIN_LED3, g_uiLED3Port, g_ucLED3Pin, 0);
+      GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 1);
       break;
     }
-    case MCU_SENDING_DATA_IND:
-    case MCU_EXECUTE_FAIL_IND:
-    case MCU_ORANGE_LED_GPIO:
-    {
-      /* Switch OFF ORANGE LED */
-      GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 0);
-      break;
-    }
+    
     case MCU_ASSOCIATED_IND:
     case MCU_IP_ALLOC_IND:
     case MCU_SERVER_INIT_IND:
@@ -241,15 +192,15 @@ GPIO_IF_LedOff(char ledNum)
     case MCU_RED_LED_GPIO:
     {
       /* Switch OFF RED LED */
-      GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 0);
+      GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 1);
       break;
     }
+	
     case MCU_ALL_LED_IND:
     {
       /* Switch OFF ALL LEDs LED */
-      GPIO_IF_Set(PIN_LED3, g_uiLED3Port, g_ucLED3Pin, 0);
-      GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 0);
-      GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 0);
+      GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 1);
+      GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 1);
       break;
     }
     default:
@@ -275,11 +226,6 @@ GPIO_IF_LedStatus(unsigned char ucGPIONum)
   switch(ucGPIONum)
   {
     case MCU_GREEN_LED_GPIO:
-    {
-      ucLEDStatus = GPIO_IF_Get(ucGPIONum, g_uiLED3Port, g_ucLED3Pin);
-      break;
-    }
-    case MCU_ORANGE_LED_GPIO:
     {
       ucLEDStatus = GPIO_IF_Get(ucGPIONum, g_uiLED2Port, g_ucLED2Pin);
       break;

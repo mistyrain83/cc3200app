@@ -36,7 +36,9 @@
 
 // Common interface includes
 #include "gpio_if.h"
+#ifndef NOTERM
 #include "uart_if.h"
+#endif
 #include "timer_if.h"
 #include "common.h"
 
@@ -55,22 +57,13 @@
 #define OOB_TASK_PRIORITY                1
 #define SPAWN_TASK_PRIORITY              9
 #define OOB_STACK_SIZE                   2048
-#define AP_SSID_LEN_MAX                 32
-#define SH_GPIO_3                       3       /* P58 - Device Mode */
+#define SH_GPIO_3                       3       /* P58 GPIO_03 - Device Mode - Button Pin */
 #define AUTO_CONNECTION_TIMEOUT_COUNT   50      /* 5 Sec */
 #define SL_STOP_TIMEOUT                 200
 
 #define LED_TASK_PRIORITY              2
 #define LED_STACK_SIZE                 1024
 
-#define TCP_TASK_PRIORITY              3
-#define TCP_STACK_SIZE                 1024
-
-#define TCPRECV_TASK_PRIORITY              4
-#define TCPRECV_STACK_SIZE                 1024
-
-#define IP_ADDR             0xc0a80165 /* 192.168.0.110 */
-#define PORT_NUM            5001
 #define BUF_SIZE            14
 #define BUF_RECV_SIZE            1024
 
@@ -139,7 +132,7 @@ unsigned int g_iCurrentIPLen = 0;
 S_DO_CMD g_sRedLed;
 unsigned int g_iSendLoopNum = 0;
 
-unsigned int g_iSwPressedNum = 0;
+unsigned int g_iSwPressedNum = 0; // Button pressed number
 
 
 #if defined(ccs)
@@ -750,9 +743,7 @@ InitializeAppVariables(void)
     g_ulStatus = 0;
     memset(g_ucConnectionSSID,0,sizeof(g_ucConnectionSSID));
     memset(g_ucConnectionBSSID,0,sizeof(g_ucConnectionBSSID));
-    g_iInternetAccess = -1;
-    g_ucDryerRunning = 0;
-    g_uiDeviceModeConfig = ROLE_STA; //default is STA mode
+    g_uiDeviceModeConfig = ROLE_STA; // default is STA mode
 	g_sRedLed.cmd = DO_CMD_DEFAULT;
 	g_sRedLed.flag = FALSE;
 	g_sRedLed.loopnum = 0;
@@ -941,12 +932,12 @@ static void ReadDeviceConfiguration()
     unsigned char pucGPIOPin;
     unsigned char ucPinValue;
         
-    //Read GPIO
-    GPIO_IF_GetPortNPin(SH_GPIO_3,&uiGPIOPort,&pucGPIOPin);
-    ucPinValue = GPIO_IF_Get(SH_GPIO_3,uiGPIOPort,pucGPIOPin);
+    // Read GPIO
+    GPIO_IF_GetPortNPin(SH_GPIO_3, &uiGPIOPort, &pucGPIOPin);
+    ucPinValue = GPIO_IF_Get(SH_GPIO_3, uiGPIOPort, pucGPIOPin);
         
-    //If Connected to VCC, Mode is AP
-    if(ucPinValue == 1)
+    // If Button be pressed, Mode is AP
+    if(ucPinValue == 0)
     {
         //AP Mode
         g_uiDeviceModeConfig = ROLE_AP;
@@ -1221,7 +1212,7 @@ void SwIntHandler(void)
 		if(g_iSwPressedNum == 1)
 		{
 			//
-		    // Turn on the timers
+		    // Turn on the button interrupt timers
 		    //
 		    Timer_IF_Start(TIMERA0_BASE, TIMER_A,
 		                  PERIODIC_TEST_CYCLES * PERIODIC_TEST_LOOPS);
@@ -1252,16 +1243,17 @@ void TimerIntHandler(void)
 	switch(g_iSwPressedNum)
 	{
 	case 4:
-		UART_PRINT("pressed 4 times\n");
+		UART_PRINT("Button pressed 4 times\n");
 		break;
 	case 6:
-		UART_PRINT("pressed 6 times\n");
+		UART_PRINT("Button pressed 6 times\n");
 		break;
 	default:
+		UART_PRINT("Button pressed %d times\n", g_iSwPressedNum);
 		break;
 	}
 	g_iSwPressedNum = 0;
-	UART_PRINT("clear sw\n");
+	UART_PRINT("Clear button pressed number\n");
 }
 
 //*****************************************************************************
@@ -1366,7 +1358,7 @@ void main()
 	Timer_IF_Start(TIMERA1_BASE, TIMER_A,
                   PERIODIC_TEST_CYCLES * PERIODIC_TEST_LOOPS / 50);
 
-#if defined(P_DIMMER)
+#if defined(P_DIMMER_BOARD)
 	// Init timer pwm
 	//
     // TIMERA3 (TIMER A) as GREEN of RGB light. GPIO 11 --> PWM_7
@@ -1376,7 +1368,7 @@ void main()
 
     MAP_TimerEnable(TIMERA3_BASE,TIMER_B);
 	UpdateDutyCycle(TIMERA3_BASE, TIMER_B, 0);
-#endif
+#endif // P_DIMMER_BOARD
 
     // Initialize Global Variables
     InitializeAppVariables();
@@ -1384,19 +1376,19 @@ void main()
     //
     // UART Init
     //
+    #ifndef NOTERM
     InitTerm();
+	#endif
     
     DisplayBanner(APP_NAME);
     
-  
-
     //
     // LED Init
     //
-    GPIO_IF_LedConfigure(LED1);
+    GPIO_IF_LedConfigure(LED1|LED2);
       
     //Turn Off the LEDs
-    GPIO_IF_LedOff(MCU_RED_LED_GPIO);
+    GPIO_IF_LedOff(MCU_ALL_LED_IND);
     
     //
     // Simplelinkspawntask
@@ -1405,12 +1397,10 @@ void main()
     if(lRetVal < 0)
     {
         ERR_PRINT(lRetVal);
+		GPIO_IF_LedOn(MCU_RED_LED_GPIO);
         LOOP_FOREVER();
     } 
 
-	
-	
-    
     //
     // Create OOB Task
     //
@@ -1420,6 +1410,7 @@ void main()
     if(lRetVal < 0)
     {
         ERR_PRINT(lRetVal);
+		GPIO_IF_LedOn(MCU_RED_LED_GPIO);
         LOOP_FOREVER();
     }  
     

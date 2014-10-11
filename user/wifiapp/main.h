@@ -2,9 +2,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#define BUTTON_PORT GPIOA0_BASE
-#define BUTTON_PINS 0x8
-
 //*****************************************************************************
 //
 // If building with a C++ compiler, make all of the definitions in this header
@@ -16,10 +13,23 @@ extern "C"
 {
 #endif
 
-static void BoardInit(void);
+// Button port and pins
+#define BUTTON_PORT GPIOA0_BASE
+#define BUTTON_PINS 0x8
+
+#define DO_CHN_MAX 4
+
+
 void SwIntHandler(void);
 static void InitializeAppVariables(void);
 
+static void ReadDeviceConfiguration();
+static void OOBTask(void *pvParameters);
+void TimerCycleIntHandler(void);
+void SwIntHandler(void);
+void TimerIntHandler(void);
+static void DisplayBanner(char * AppName);
+static void BoardInit(void);
 
 //*****************************************************************************
 //
