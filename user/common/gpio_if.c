@@ -50,8 +50,16 @@ static unsigned long ulReg[]=
 unsigned int g_uiLED1Port = 3,g_uiLED2Port = 0;
 unsigned char g_ucLED1Pin,g_ucLED2Pin;
 
+unsigned int g_uiDO1Port = 0,g_uiDO2Port = 0,g_uiDO3Port = 0,g_uiDO4Port = 0;
+unsigned char g_ucDO1Pin,g_ucDO2Pin,g_ucDO3Pin,g_ucDO4Pin;
+
 #define PIN_LED1 0
 #define PIN_LED2 30
+
+#define PIN_DO1 7
+#define PIN_DO2 9
+#define PIN_DO3 6
+#define PIN_DO4 4
 
 //****************************************************************************
 //                      LOCAL FUNCTION DEFINITIONS                          
@@ -108,6 +116,39 @@ GPIO_IF_LedConfigure(unsigned char ucPins)
 
 }
 
+void
+GPIO_IF_DOConfigure(unsigned char ucPins)
+{
+  if(ucPins & DO1)
+  {
+    GPIO_IF_GetPortNPin(PIN_DO1,
+                        &g_uiDO1Port,
+                        &g_ucDO1Pin);
+  }
+
+  if(ucPins & DO2)
+  {
+  GPIO_IF_GetPortNPin(PIN_DO2,
+                        &g_uiDO2Port,
+                        &g_ucDO2Pin);
+  }
+
+  if(ucPins & DO3)
+  {
+   GPIO_IF_GetPortNPin(PIN_DO3,
+                        &g_uiDO3Port,
+                        &g_ucDO3Pin);
+  }
+
+  if(ucPins & DO4)
+  {
+  GPIO_IF_GetPortNPin(PIN_DO4,
+                        &g_uiDO4Port,
+                        &g_ucDO4Pin);
+  }
+
+}
+
 //*****************************************************************************
 //
 //! Turn LED On
@@ -156,6 +197,36 @@ GPIO_IF_LedOn(char ledNum)
         default:
           break;
     }
+}
+
+void
+GPIO_IF_DOOn(char doNum)
+{
+  switch(doNum)
+  {
+    case MCU_DO1_IND:
+    {
+      GPIO_IF_Set(PIN_DO1, g_uiDO1Port, g_ucDO1Pin, 1);
+      break;
+    }
+	case MCU_DO2_IND:
+    {
+      GPIO_IF_Set(PIN_DO2, g_uiDO2Port, g_ucDO2Pin, 1);
+      break;
+    }
+	case MCU_DO3_IND:
+    {
+      GPIO_IF_Set(PIN_DO3, g_uiDO3Port, g_ucDO3Pin, 1);
+      break;
+    }
+	case MCU_DO4_IND:
+    {
+      GPIO_IF_Set(PIN_DO4, g_uiDO4Port, g_ucDO4Pin, 1);
+      break;
+    }
+    default:
+      break;
+  }
 }
 
 //*****************************************************************************
@@ -208,6 +279,36 @@ GPIO_IF_LedOff(char ledNum)
   }
 }
 
+void
+GPIO_IF_DOOff(char doNum)
+{
+  switch(doNum)
+  {
+    case MCU_DO1_IND:
+    {
+      GPIO_IF_Set(PIN_DO1, g_uiDO1Port, g_ucDO1Pin, 0);
+      break;
+    }
+	case MCU_DO2_IND:
+    {
+      GPIO_IF_Set(PIN_DO2, g_uiDO2Port, g_ucDO2Pin, 0);
+      break;
+    }
+	case MCU_DO3_IND:
+    {
+      GPIO_IF_Set(PIN_DO3, g_uiDO3Port, g_ucDO3Pin, 0);
+      break;
+    }
+	case MCU_DO4_IND:
+    {
+      GPIO_IF_Set(PIN_DO4, g_uiDO4Port, g_ucDO4Pin, 0);
+      break;
+    }
+    default:
+      break;
+  }
+}
+
 //*****************************************************************************
 //
 //!  \brief This function returns LED current Status
@@ -241,6 +342,38 @@ GPIO_IF_LedStatus(unsigned char ucGPIONum)
   return ucLEDStatus;
 }
 
+unsigned char
+GPIO_IF_DOStatus(unsigned char ucGPIONum)
+{
+  unsigned char ucDOStatus;
+  switch(ucGPIONum)
+  {
+    case MCU_DO1_IND:
+    {
+      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO1Port, g_ucDO1Pin);
+      break;
+    }
+    case MCU_DO2_IND:
+    {
+      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO2Port, g_ucDO2Pin);
+      break;
+    }
+	case MCU_DO3_IND:
+    {
+      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO3Port, g_ucDO3Pin);
+      break;
+    }
+	case MCU_DO4_IND:
+    {
+      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO4Port, g_ucDO4Pin);
+      break;
+    }
+    default:
+        ucDOStatus = 0;
+  }
+  return ucDOStatus;
+}
+
 //*****************************************************************************
 //
 //! Toggle the Led state
@@ -263,6 +396,20 @@ void GPIO_IF_LedToggle(unsigned char ucLedNum)
     else
     {
         GPIO_IF_LedOn(ucLedNum);
+    }
+}
+
+void GPIO_IF_DOToggle(unsigned char ucDONum)
+{
+
+    unsigned char ucDOStatus = GPIO_IF_DOStatus(ucDONum);
+    if(ucDOStatus == 1)
+    {
+        GPIO_IF_LedOff(ucDONum);
+    }
+    else
+    {
+        GPIO_IF_LedOn(ucDONum);
     }
 }
 

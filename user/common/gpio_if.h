@@ -28,6 +28,15 @@ typedef enum
 
 typedef enum
 {
+    NO_DO,
+    DO1 = 0x1, // DO1 GP7/Pin62
+    DO2 = 0x2, // DO2 GP9/Pin64
+    DO3 = 0x4, // DO3 GP6/Pin61
+    DO4 = 0x8, // DO4 GP4/Pin59
+} doEnum;
+
+typedef enum
+{
     NO_LED_IND = NO_LED,
     MCU_SENDING_DATA_IND = LED1,
     MCU_ASSOCIATED_IND, /* Device associated to an AP */
@@ -41,6 +50,16 @@ typedef enum
     MCU_GREEN_LED_GPIO, /* GP30 for LED GREEN */
     MCU_ALL_LED_IND
 } ledNames;
+
+typedef enum
+{
+    NO_DO_IND = NO_DO,
+    MCU_DO1_IND = DO1,
+    MCU_DO2_IND,
+    MCU_DO3_IND,
+    MCU_DO4_IND,
+    MCU_ALL_DO_IND
+} doNames;
 
 //*****************************************************************************
 //
@@ -64,10 +83,15 @@ extern unsigned char GPIO_IF_Get(unsigned char ucPin,
              unsigned int uiGPIOPort,
              unsigned char ucGPIOPin);
 extern void GPIO_IF_LedConfigure(unsigned char ucPins);
+extern void GPIO_IF_DOConfigure(unsigned char ucPins);
 extern void GPIO_IF_LedOn(char ledNum);
+extern void GPIO_IF_DOOn(char doNum);
 extern void GPIO_IF_LedOff(char ledNum);
+extern void GPIO_IF_DOOff(char doNum);
 extern unsigned char GPIO_IF_LedStatus(unsigned char ucGPIONum);
+extern unsigned char GPIO_IF_DOStatus(unsigned char ucGPIONum);
 extern void GPIO_IF_LedToggle(unsigned char ucLedNum);
+extern void GPIO_IF_DOToggle(unsigned char ucDONum);
 //*****************************************************************************
 //
 // Mark the end of the C bindings section for C++ compilers.

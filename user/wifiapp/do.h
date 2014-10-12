@@ -1,9 +1,31 @@
+#ifndef __DO_H__
+#define __DO_H__
 
+//*****************************************************************************
+//
+// If building with a C++ compiler, make all of the definitions in this header
+// have a C binding.
+//
+//*****************************************************************************
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-// message typede
-#define MSG_TYPE_RECV  0x20  // control4 -> device
+#define DO_CHN_NUM 4
+
+#define DO_MSG_LEN_MIN 7
+
+// message type
+#define MSG_TYPE_RECV  		0x20  // control4 -> device
 #define MSG_VER_CONTROL4    0x01  // control4
 #define MSG_DO_CONTROL4     0x20  // DO control4
+#define MSG_LEN_DO			0x05  // DO command mssage len
+
+#define MSG_TYPE_SEND		0x10 // device -> control4
+
+// command type
+#define CMD_TYPE_DO			0x21  // digital output
 
 // DO command
 #define DO_CMD_OFF     0x00
@@ -20,3 +42,15 @@ typedef struct
 	unsigned short loopnum;  // delay Cycle(ms)
 }S_DO_CMD;
 
+int parseDOCmd(unsigned char ucBuf[], int uiLen);
+
+//*****************************************************************************
+//
+// Mark the end of the C bindings section for C++ compilers.
+//
+//*****************************************************************************
+#ifdef __cplusplus
+}
+#endif
+
+#endif //  __DO_H__

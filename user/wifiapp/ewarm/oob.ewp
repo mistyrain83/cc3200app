@@ -171,6 +171,7 @@
           <state>ewarm</state>
           <state>USE_FREERTOS</state>
           <state>SL_PLATFORM_MULTI_THREADED</state>
+          <state>P_RELAY_BOARD</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -960,6 +961,9 @@
   </configuration>
   <file>
     <name>$PROJ_DIR$\..\communication.c</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\..\do.c</name>
   </file>
   <file>
     <name>$PROJ_DIR$\..\..\common\gpio_if.c</name>

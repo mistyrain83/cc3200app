@@ -17,12 +17,14 @@ extern "C"
 #define BUTTON_PORT GPIOA0_BASE
 #define BUTTON_PINS 0x8
 
-#define DO_CHN_MAX 4
+
 
 
 void SwIntHandler(void);
 static void InitializeAppVariables(void);
 
+static int ConfigureMode(int iMode);
+long ConnectToNetwork();
 static void ReadDeviceConfiguration();
 static void OOBTask(void *pvParameters);
 void TimerCycleIntHandler(void);

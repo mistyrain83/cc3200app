@@ -72,8 +72,6 @@
 
 #define TCP_LISTEN_PORT 5001
 
-#define DO_MSG_LEN_MIN 7
-
 #define MSG_SEND_LOOP_NUM 20 // 2s =  20*100ms
 
 #define SWITCH_BOUNCE_TIME 40000  // ~50ms for UtilsDelay function parameter
@@ -105,16 +103,16 @@ static unsigned char GET_token_TEMP[]  = "__SL_G_UTP";
 static unsigned char GET_token_ACC[]  = "__SL_G_UAC";
 static unsigned char GET_token_UIC[]  = "__SL_G_UIC";
 static int g_iInternetAccess = -1;
-static unsigned char g_ucDryerRunning = 0;
-static unsigned int g_uiDeviceModeConfig = ROLE_STA; //default is STA mode
-static unsigned long  g_ulStatus = 0;//SimpleLink Status
+
+static unsigned int g_uiDeviceModeConfig = ROLE_STA; // default is STA mode
+static unsigned long  g_ulStatus = 0; // SimpleLink Status
 static unsigned char  g_ucConnectionSSID[SSID_LEN_MAX+1]; //Connection SSID
 static unsigned char  g_ucConnectionBSSID[BSSID_LEN_MAX]; //Connection BSSID
 
 static int g_iTcpSocketID = -1;
 
-char g_cBsdBuf[BUF_SIZE];
-char g_cBsdRecvBuf[BUF_RECV_SIZE];
+unsigned char g_cBsdBuf[BUF_SIZE];
+unsigned char g_ucBsdRecvBuf[BUF_RECV_SIZE];
 
 unsigned char g_cServerIP[MYIP_LEN_MAX];
 unsigned char g_cServerPort[MYPORT_LEN_MAX];
@@ -130,6 +128,7 @@ unsigned int g_iPortLen = 0;
 unsigned int g_iCurrentIPLen = 0;
 
 S_DO_CMD g_sRedLed;
+S_DO_CMD g_sDO[DO_CHN_NUM];
 unsigned int g_iSendLoopNum = 0;
 
 unsigned int g_iSwPressedNum = 0; // Button pressed number
@@ -632,18 +631,7 @@ void SimpleLinkHttpServerCallback(SlHttpServerEvent_t *pSlHttpServerEvent,
                 }
                 else if(led == '2')
                 {
-                    if(memcmp(ptr, "ON", 2) == 0)
-                    {
-                        GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
-                    }
-                    else if(memcmp(ptr, "Blink", 5) == 0)
-                    {
-                        GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
-                    }
-                    else
-                    {
-                        GPIO_IF_LedOff(MCU_ORANGE_LED_GPIO);
-                    }
+                    
                 }
 
             }
@@ -780,23 +768,23 @@ static int ConfigureMode(int iMode)
 
 //****************************************************************************
 //
-//!    \brief Connects to the Network in AP or STA Mode - If ForceAP Jumper is
-//!                                             Placed, Force it to AP mode
+//!    \brief Connects to the Network in AP or STA Mode - If Button is
+//!                                             Pressed, Force it to AP mode
 //!
 //! \return  0 - Success
-//!            -1 - Failure
+//!          -1 - Failure
 //
 //****************************************************************************
 long ConnectToNetwork()
 {
     long lRetVal = -1;
-    unsigned int uiConnectTimeoutCnt =0;
+    unsigned int uiConnectTimeoutCnt = 0;
 
     // staring simplelink
     lRetVal =  sl_Start(NULL,NULL,NULL);
     ASSERT_ON_ERROR( lRetVal);
 
-    // Device is in AP Mode and Force AP Jumper is not Connected
+    // Device is in AP Mode and Button is not Pressed
     if(ROLE_STA != lRetVal && g_uiDeviceModeConfig == ROLE_STA )
     {
         if (ROLE_AP == lRetVal)
@@ -810,24 +798,24 @@ long ConnectToNetwork()
             #endif
             }
         }
-        //Switch to STA Mode
+        // Switch to STA Mode
         lRetVal = ConfigureMode(ROLE_STA);
         ASSERT_ON_ERROR( lRetVal);
     }
 
-    //Device is in STA Mode and Force AP Jumper is Connected
+    //Device is in STA Mode and Button is Pressed
     if(ROLE_AP != lRetVal && g_uiDeviceModeConfig == ROLE_AP )
     {
-         //Switch to AP Mode
+         // Switch to AP Mode
          lRetVal = ConfigureMode(ROLE_AP);
          ASSERT_ON_ERROR( lRetVal);
 
     }
 
-    //No Mode Change Required
+    // No Mode Change Required
     if(lRetVal == ROLE_AP)
     {
-        //waiting for the AP to acquire IP address from Internal DHCP Server
+        // waiting for the AP to acquire IP address from Internal DHCP Server
         // If the device is in AP mode, we need to wait for this event 
         // before doing anything 
         while(!IS_IP_ACQUIRED(g_ulStatus))
@@ -836,18 +824,18 @@ long ConnectToNetwork()
             _SlNonOsMainLoopTask(); 
         #endif
         }
-        //Stop Internal HTTP Server
+        // Stop Internal HTTP Server
         lRetVal = sl_NetAppStop(SL_NET_APP_HTTP_SERVER_ID);
         ASSERT_ON_ERROR( lRetVal);
 
-        //Start Internal HTTP Server
+        // Start Internal HTTP Server
         lRetVal = sl_NetAppStart(SL_NET_APP_HTTP_SERVER_ID);
         ASSERT_ON_ERROR( lRetVal);
 
        char cCount=0;
        
-       //Blink LED 3 times to Indicate AP Mode
-       for(cCount=0;cCount<3;cCount++)
+       // Blink LED 3 times to Indicate AP Mode
+       for(cCount = 0;cCount<3;cCount++)
        {
            //Turn RED LED On
            GPIO_IF_LedOn(MCU_RED_LED_GPIO);
@@ -862,7 +850,7 @@ long ConnectToNetwork()
 	   unsigned short len = 32;
 	   unsigned short config_opt = WLAN_AP_OPT_SSID;
 	   sl_WlanGet(SL_WLAN_CFG_AP_ID, &config_opt , &len, (unsigned char* )ssid);
-	   UART_PRINT("\n\r Connect to : \'%s\'\n\r\n\r",ssid);
+	   UART_PRINT("\n\r Connect to : \'%s\'\n\r\n\r", ssid);
     }
     else
     {
@@ -892,7 +880,6 @@ long ConnectToNetwork()
         if(uiConnectTimeoutCnt == AUTO_CONNECTION_TIMEOUT_COUNT)
         {
             //Blink Red LED to Indicate Connection Error
-            //g_ucLEDStatus = LED_ON;
             GPIO_IF_LedOn(MCU_RED_LED_GPIO);
             
             CLR_STATUS_BIT_ALL(g_ulStatus);
@@ -908,7 +895,6 @@ long ConnectToNetwork()
             }
     }
     //Turn RED LED Off
-    //g_ucLEDStatus = LED_OFF;
     GPIO_IF_LedOff(MCU_RED_LED_GPIO);
 
     //g_iInternetAccess = ConnectionTest();
@@ -991,7 +977,7 @@ static void OOBTask(void *pvParameters)
 	lRetVal = BsdTcpServer(&iSockID, TCP_LISTEN_PORT);
     if(lRetVal < 0)
     {
-        UART_PRINT("TCP Server failed\n\r");
+        UART_PRINT("TCP Server create failed\n\r");
         LOOP_FOREVER();
     }
 	//UART_PRINT("before accept\n\r");
@@ -1001,7 +987,6 @@ static void OOBTask(void *pvParameters)
     // waiting for an incoming TCP connection
     while( 1 )
     {
-		//UART_PRINT("before connect %d\n\r", g_iTcpSocketID);
         // accepts a connection form a TCP client, if there is any
         // otherwise returns SL_EAGAIN
         g_iTcpSocketID = sl_Accept(iSockID, ( struct SlSockAddr_t *)&sAddr, 
@@ -1027,14 +1012,12 @@ static void OOBTask(void *pvParameters)
 			{
 				UART_PRINT("[WARN] SetSockOpt Error!\n");
 				sl_Close(g_iTcpSocketID);
-				
 			}
 		}
 
-
 		while(1)
 		{
-			iStatus = sl_Recv(g_iTcpSocketID, g_cBsdRecvBuf, BUF_RECV_SIZE, 0);
+			iStatus = sl_Recv(g_iTcpSocketID, g_ucBsdRecvBuf, BUF_RECV_SIZE, 0);
 	        if( iStatus == 0 )
 	        {
 	          // error
@@ -1047,78 +1030,33 @@ static void OOBTask(void *pvParameters)
 
 			for(i = 0; i < iStatus; i++)
 			{
-				UART_PRINT("0x%x\n\r", g_cBsdRecvBuf[i]);
+				UART_PRINT("0x%x\n\r", g_ucBsdRecvBuf[i]);
 			}
 			
 
 			// parse receive buf
-			if(iStatus >= DO_MSG_LEN_MIN)
+			if(iStatus > 0)
 			{
-				if((g_cBsdRecvBuf[0] == MSG_TYPE_RECV) 
-					&& (g_cBsdRecvBuf[1] == MSG_VER_CONTROL4) )
-				{
-					// DO
-					if(g_cBsdRecvBuf[2] == 0x21)
-					{
-						usLoopNum = ((g_cBsdRecvBuf[5] << 8) + g_cBsdRecvBuf[6])/100;
-						g_sRedLed.loopnum = usLoopNum;
-						switch(g_cBsdRecvBuf[4])
-						{
-							case DO_CMD_OFF:
-								g_sRedLed.cmd = DO_CMD_OFF;
-								if(usLoopNum > 0)
-								{
-									g_sRedLed.flag = TRUE;
-								}
-								break;
-							case DO_CMD_ON:
-								g_sRedLed.cmd = DO_CMD_ON;
-								if(usLoopNum > 0)
-								{
-									g_sRedLed.flag = TRUE;
-								}
-								break;
-							case DO_CMD_TOGGLE:
-								g_sRedLed.cmd = DO_CMD_TOGGLE;
-								if(usLoopNum > 0)
-								{
-									g_sRedLed.flag = TRUE;
-								}
-								break;
-							default:
-								UART_PRINT("[WARN] DO Cmd ERROR!\n");
-								break;
-						}
-					}
-					else if(g_cBsdRecvBuf[2] == 0x41)  // PWM
-					{
-						UART_PRINT("Update PWM %d\n", ((g_cBsdRecvBuf[5] << 8) + g_cBsdRecvBuf[6]));
-						UpdateDutyCycle(TIMERA3_BASE, TIMER_B, ((g_cBsdRecvBuf[5] << 8) + g_cBsdRecvBuf[6]));
-					}
-					else
-					{
-						UART_PRINT("[WARN] Not Know Device!\n");
-					}
-				}
-				else
-				{
-					UART_PRINT("Received Type or Version error!\n");
-				}
+				parseDOCmd(g_ucBsdRecvBuf, iStatus);
 			}
 
 			// send buf
 			if(g_iSendLoopNum >= MSG_SEND_LOOP_NUM)
 			{
 				g_iSendLoopNum = 0;
-				g_cBsdBuf[0] = 0x10;
-				g_cBsdBuf[1] = 0x01;
-				g_cBsdBuf[2] = 0x21;
-				g_cBsdBuf[3] = 0x01;
-				g_cBsdBuf[4] = GPIO_IF_LedStatus(MCU_RED_LED_GPIO);
-				g_cBsdBuf[5] = 0x00;
+				
+				g_cBsdBuf[0] = MSG_TYPE_SEND;
+				g_cBsdBuf[1] = MSG_VER_CONTROL4;
+				g_cBsdBuf[2] = CMD_TYPE_DO;
+				g_cBsdBuf[3] = DO_CHN_NUM;
+				g_cBsdBuf[4] = GPIO_IF_DOStatus(MCU_DO1_IND);
+				g_cBsdBuf[5] = GPIO_IF_DOStatus(MCU_DO2_IND);
+				g_cBsdBuf[6] = GPIO_IF_DOStatus(MCU_DO3_IND);
+				g_cBsdBuf[7] = GPIO_IF_DOStatus(MCU_DO4_IND);
+				g_cBsdBuf[8] = 0x00;
 				//sTestBufLen = 6;
 		        // sending packet
-		        iStatus = sl_Send(g_iTcpSocketID, g_cBsdBuf, 6, 0 );
+		        iStatus = sl_Send(g_iTcpSocketID, g_cBsdBuf, 9, 0 );
 		        if( iStatus <= 0 )
 		        {
 					UART_PRINT("[WARN] Send ERROR!\n");
@@ -1147,38 +1085,42 @@ static void OOBTask(void *pvParameters)
 //****************************************************************************
 void TimerCycleIntHandler(void)
 {
+	int i = 0;
 	//
     // Clear the timer interrupt.
     //
     Timer_IF_InterruptClear(TIMERA1_BASE);
 
 	// process event
-	switch(g_sRedLed.cmd)
+	//for(i = 0; i < DO_CHN_NUM; i++)
 	{
-		case DO_CMD_OFF:
-			GPIO_IF_LedOff(MCU_RED_LED_GPIO);
-			g_sRedLed.cmd = DO_CMD_DEFAULT;
-			break;
-		case DO_CMD_ON:
-			GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-			g_sRedLed.cmd = DO_CMD_DEFAULT;
-			break;
-		case DO_CMD_TOGGLE:
-			GPIO_IF_LedToggle(MCU_RED_LED_GPIO);
-			g_sRedLed.cmd = DO_CMD_DEFAULT;
-			break;
-		default:
-			break;
-		
-	}
-	if(g_sRedLed.flag == TRUE)
-	{
-		g_sRedLed.loopnum--;
-		if(g_sRedLed.loopnum == 0)
+		switch(g_sDO[i].cmd)
 		{
-			g_sRedLed.flag = FALSE;
-			GPIO_IF_LedToggle(MCU_RED_LED_GPIO);
-			g_sRedLed.cmd = DO_CMD_DEFAULT;
+			case DO_CMD_OFF:
+				GPIO_IF_DOOff(MCU_DO1_IND);
+				g_sDO[i].cmd = DO_CMD_DEFAULT;
+				break;
+			case DO_CMD_ON:
+				GPIO_IF_DOOn(MCU_DO1_IND);
+				g_sDO[i].cmd = DO_CMD_DEFAULT;
+				break;
+			case DO_CMD_TOGGLE:
+				GPIO_IF_DOToggle(MCU_DO1_IND);
+				g_sDO[i].cmd = DO_CMD_DEFAULT;
+				break;
+			default:
+				break;
+			
+		}
+		if(g_sDO[i].flag == TRUE)
+		{
+			g_sDO[i].loopnum--;
+			if(g_sDO[i].loopnum == 0)
+			{
+				g_sDO[i].flag = FALSE;
+				GPIO_IF_LedToggle(MCU_RED_LED_GPIO);
+				g_sDO[i].cmd = DO_CMD_DEFAULT;
+			}
 		}
 	}
     
@@ -1381,7 +1323,10 @@ void main()
 	#endif
     
     DisplayBanner(APP_NAME);
-    
+
+	// DO Init
+	GPIO_IF_DOConfigure(DO1|DO2|DO3|DO4);
+    GPIO_IF_DOOn(MCU_DO2_IND);
     //
     // LED Init
     //
