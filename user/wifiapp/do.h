@@ -12,14 +12,14 @@ extern "C"
 {
 #endif
 
-#define DO_CHN_NUM 4
-
-#define DO_MSG_LEN_MIN 7
+#define DO_CHN_NUM 		4	// DO channel number
+#define DO_MSG_LEN_MIN 	7	// Minimum message length
 
 // message type
 #define MSG_TYPE_RECV  		0x20  // control4 -> device
 #define MSG_VER_CONTROL4    0x01  // control4
 #define MSG_DO_CONTROL4     0x20  // DO control4
+// DO message include: Type, ChannelNo, Command, Data(Payload, 2 Bytes)
 #define MSG_LEN_DO			0x05  // DO command mssage len
 
 #define MSG_TYPE_SEND		0x10 // device -> control4
@@ -33,16 +33,17 @@ extern "C"
 #define DO_CMD_TOGGLE  0x02
 #define DO_CMD_DEFAULT 0xFF
 
-// DO command
+// DO command structure
 typedef struct 
 {
-	unsigned char chn;    // channel number
-	unsigned char cmd;    // command
-	int           flag;   // toggle valid flag
-	unsigned short loopnum;  // delay Cycle(ms)
+	unsigned char 	chn;    	// channel number
+	unsigned char 	cmd;    	// command
+	int           	flag;   	// whether toggle flag
+	unsigned short 	loopnum; 	// delay Cycle(ms)
 }S_DO_CMD;
 
-int parseDOCmd(unsigned char ucBuf[], int uiLen);
+// Function declaration
+int parseDOCmd(unsigned char ucBuf[], int iLen);
 
 //*****************************************************************************
 //

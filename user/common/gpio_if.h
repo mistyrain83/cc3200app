@@ -53,12 +53,11 @@ typedef enum
 
 typedef enum
 {
-    NO_DO_IND = NO_DO,
-    MCU_DO1_IND = DO1,
-    MCU_DO2_IND,
-    MCU_DO3_IND,
-    MCU_DO4_IND,
-    MCU_ALL_DO_IND
+    MCU_DO1_IND = 0,
+    MCU_DO2_IND = 1,
+    MCU_DO3_IND = 2,
+    MCU_DO4_IND = 3,
+    MCU_ALL_DO_IND = 4;
 } doNames;
 
 //*****************************************************************************

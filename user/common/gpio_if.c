@@ -314,7 +314,7 @@ GPIO_IF_DOOff(char doNum)
 //!  \brief This function returns LED current Status
 //!
 //!  \param[in] ucGPIONum is the GPIO to which the LED is connected
-//!                MCU_GREEN_LED_GPIO\MCU_ORANGE_LED_GPIO\MCU_RED_LED_GPIO
+//!                MCU_GREEN_LED_GPIO\MCU_RED_LED_GPIO
 //!
 //!
 //!  \return 1: LED ON, 0: LED OFF
@@ -326,14 +326,14 @@ GPIO_IF_LedStatus(unsigned char ucGPIONum)
   unsigned char ucLEDStatus;
   switch(ucGPIONum)
   {
-    case MCU_GREEN_LED_GPIO:
-    {
-      ucLEDStatus = GPIO_IF_Get(ucGPIONum, g_uiLED2Port, g_ucLED2Pin);
-      break;
-    }
     case MCU_RED_LED_GPIO:
     {
-      ucLEDStatus = GPIO_IF_Get(ucGPIONum, g_uiLED1Port, g_ucLED1Pin);
+      ucLEDStatus = GPIO_IF_Get(PIN_LED1, g_uiLED1Port, g_ucLED1Pin);
+      break;
+    }
+	case MCU_GREEN_LED_GPIO:
+    {
+      ucLEDStatus = GPIO_IF_Get(PIN_LED2, g_uiLED2Port, g_ucLED2Pin);
       break;
     }
     default:
@@ -350,22 +350,22 @@ GPIO_IF_DOStatus(unsigned char ucGPIONum)
   {
     case MCU_DO1_IND:
     {
-      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO1Port, g_ucDO1Pin);
+      ucDOStatus = GPIO_IF_Get(PIN_DO1, g_uiDO1Port, g_ucDO1Pin);
       break;
     }
     case MCU_DO2_IND:
     {
-      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO2Port, g_ucDO2Pin);
+      ucDOStatus = GPIO_IF_Get(PIN_DO2, g_uiDO2Port, g_ucDO2Pin);
       break;
     }
 	case MCU_DO3_IND:
     {
-      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO3Port, g_ucDO3Pin);
+      ucDOStatus = GPIO_IF_Get(PIN_DO3, g_uiDO3Port, g_ucDO3Pin);
       break;
     }
 	case MCU_DO4_IND:
     {
-      ucDOStatus = GPIO_IF_Get(ucGPIONum, g_uiDO4Port, g_ucDO4Pin);
+      ucDOStatus = GPIO_IF_Get(PIN_DO4, g_uiDO4Port, g_ucDO4Pin);
       break;
     }
     default:

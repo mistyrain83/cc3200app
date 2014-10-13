@@ -728,6 +728,7 @@ void SimpleLinkSockEventHandler(SlSockEvent_t *pSock)
 static void 
 InitializeAppVariables(void)
 {
+	int i;
     g_ulStatus = 0;
     memset(g_ucConnectionSSID,0,sizeof(g_ucConnectionSSID));
     memset(g_ucConnectionBSSID,0,sizeof(g_ucConnectionBSSID));
@@ -735,6 +736,12 @@ InitializeAppVariables(void)
 	g_sRedLed.cmd = DO_CMD_DEFAULT;
 	g_sRedLed.flag = FALSE;
 	g_sRedLed.loopnum = 0;
+	for(i = 0; i < DO_CHN_NUM; i++)
+	{
+		g_sDO[i].cmd = DO_CMD_OFF;
+		g_sDO[i].flag = FALSE;
+		g_sDO[i].loopnum = 0;
+	}
 }
 
 
@@ -1091,34 +1098,36 @@ void TimerCycleIntHandler(void)
     //
     Timer_IF_InterruptClear(TIMERA1_BASE);
 
-	// process event
-	//for(i = 0; i < DO_CHN_NUM; i++)
+	// Process event
+	for(i = 0; i < DO_CHN_NUM; i++)
 	{
 		switch(g_sDO[i].cmd)
 		{
 			case DO_CMD_OFF:
-				GPIO_IF_DOOff(MCU_DO1_IND);
+				GPIO_IF_DOOff(i);
 				g_sDO[i].cmd = DO_CMD_DEFAULT;
 				break;
 			case DO_CMD_ON:
-				GPIO_IF_DOOn(MCU_DO1_IND);
+				GPIO_IF_DOOn(i);
 				g_sDO[i].cmd = DO_CMD_DEFAULT;
 				break;
 			case DO_CMD_TOGGLE:
-				GPIO_IF_DOToggle(MCU_DO1_IND);
+				GPIO_IF_DOToggle(i);
 				g_sDO[i].cmd = DO_CMD_DEFAULT;
 				break;
 			default:
 				break;
 			
 		}
+		
 		if(g_sDO[i].flag == TRUE)
 		{
 			g_sDO[i].loopnum--;
+			
 			if(g_sDO[i].loopnum == 0)
 			{
 				g_sDO[i].flag = FALSE;
-				GPIO_IF_LedToggle(MCU_RED_LED_GPIO);
+				GPIO_IF_LedToggle(i);
 				g_sDO[i].cmd = DO_CMD_DEFAULT;
 			}
 		}
@@ -1323,16 +1332,20 @@ void main()
 	#endif
     
     DisplayBanner(APP_NAME);
-
+	
+	//
 	// DO Init
+	//
 	GPIO_IF_DOConfigure(DO1|DO2|DO3|DO4);
-    GPIO_IF_DOOn(MCU_DO2_IND);
+    GPIO_IF_DOOff(MCU_ALL_DO_IND);
+	
     //
     // LED Init
     //
     GPIO_IF_LedConfigure(LED1|LED2);
-      
-    //Turn Off the LEDs
+    //Turn On and Off the LEDs
+    GPIO_IF_LedOn(MCU_ALL_LED_IND);
+	MAP_UtilsDelay(800000);
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
     
     //
@@ -1357,15 +1370,7 @@ void main()
         ERR_PRINT(lRetVal);
 		GPIO_IF_LedOn(MCU_RED_LED_GPIO);
         LOOP_FOREVER();
-    }  
-    
-    //
-    // Create OOB Task
-    //
-    //lRetVal = osi_TaskCreate(LEDTask, (signed char*)"LEDTask", \
-    //                            LED_STACK_SIZE, NULL, \
-    //                            LED_TASK_PRIORITY, NULL );
-
+    }
 	
     //
     // Start OS Scheduler
