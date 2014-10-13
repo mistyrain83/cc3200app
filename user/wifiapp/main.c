@@ -1022,8 +1022,20 @@ static void OOBTask(void *pvParameters)
 			}
 		}
 
+		// GREEN LED ON Indicate NO Communication with Client
+		if(GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO) == 0)
+		{
+			GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
+		}
+
 		while(1)
 		{
+			// GREEN LED OFF Indicate YES Communication with Client
+			if(GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO) == 1)
+			{
+				GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
+			}
+			
 			iStatus = sl_Recv(g_iTcpSocketID, g_ucBsdRecvBuf, BUF_RECV_SIZE, 0);
 	        if( iStatus == 0 )
 	        {
