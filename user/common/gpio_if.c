@@ -224,6 +224,14 @@ GPIO_IF_DOOn(char doNum)
       GPIO_IF_Set(PIN_DO4, g_uiDO4Port, g_ucDO4Pin, 1);
       break;
     }
+	case MCU_ALL_DO_IND:
+    {
+		GPIO_IF_Set(PIN_DO1, g_uiDO1Port, g_ucDO1Pin, 1);
+		GPIO_IF_Set(PIN_DO2, g_uiDO2Port, g_ucDO2Pin, 1);
+		GPIO_IF_Set(PIN_DO3, g_uiDO3Port, g_ucDO3Pin, 1);
+      	GPIO_IF_Set(PIN_DO4, g_uiDO4Port, g_ucDO4Pin, 1);
+      break;
+    }
     default:
       break;
   }
@@ -302,6 +310,14 @@ GPIO_IF_DOOff(char doNum)
 	case MCU_DO4_IND:
     {
       GPIO_IF_Set(PIN_DO4, g_uiDO4Port, g_ucDO4Pin, 0);
+      break;
+    }
+	case MCU_ALL_DO_IND:
+    {
+		GPIO_IF_Set(PIN_DO1, g_uiDO1Port, g_ucDO1Pin, 0);
+		GPIO_IF_Set(PIN_DO2, g_uiDO2Port, g_ucDO2Pin, 0);
+		GPIO_IF_Set(PIN_DO3, g_uiDO3Port, g_ucDO3Pin, 0);
+      	GPIO_IF_Set(PIN_DO4, g_uiDO4Port, g_ucDO4Pin, 0);
       break;
     }
     default:
@@ -389,7 +405,7 @@ void GPIO_IF_LedToggle(unsigned char ucLedNum)
 {
 
     unsigned char ucLEDStatus = GPIO_IF_LedStatus(ucLedNum);
-    if(ucLEDStatus == 1)
+    if(ucLEDStatus == 0)
     {
         GPIO_IF_LedOff(ucLedNum);
     }
@@ -405,11 +421,11 @@ void GPIO_IF_DOToggle(unsigned char ucDONum)
     unsigned char ucDOStatus = GPIO_IF_DOStatus(ucDONum);
     if(ucDOStatus == 1)
     {
-        GPIO_IF_LedOff(ucDONum);
+        GPIO_IF_DOOff(ucDONum);
     }
     else
     {
-        GPIO_IF_LedOn(ucDONum);
+        GPIO_IF_DOOn(ucDONum);
     }
 }
 

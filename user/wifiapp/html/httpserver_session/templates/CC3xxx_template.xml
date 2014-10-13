@@ -129,9 +129,9 @@
          <ModeEntry name="PublicWrite" checked="false"/>
          <ModeEntry name="PublicRead" checked="false"/>
       </mode>
-      <verify>false</verify>
-      <Update>false</Update>
-      <Erase>false</Erase>
+      <verify>true</verify>
+      <Update>true</Update>
+      <Erase>true</Erase>
       <Certificate></Certificate>
       <Signature></Signature>
    </Filename>
@@ -150,9 +150,9 @@
          <ModeEntry name="PublicWrite" checked="false"/>
          <ModeEntry name="PublicRead" checked="false"/>
       </mode>
-      <verify>false</verify>
-      <Update>false</Update>
-      <Erase>false</Erase>
+      <verify>true</verify>
+      <Update>true</Update>
+      <Erase>true</Erase>
       <Certificate></Certificate>
       <Signature></Signature>
    </Filename>
@@ -171,9 +171,9 @@
          <ModeEntry name="PublicWrite" checked="false"/>
          <ModeEntry name="PublicRead" checked="false"/>
       </mode>
-      <verify>false</verify>
-      <Update>false</Update>
-      <Erase>false</Erase>
+      <verify>true</verify>
+      <Update>true</Update>
+      <Erase>true</Erase>
       <Certificate></Certificate>
       <Signature></Signature>
    </Filename>
@@ -192,9 +192,9 @@
          <ModeEntry name="PublicWrite" checked="false"/>
          <ModeEntry name="PublicRead" checked="false"/>
       </mode>
-      <verify>false</verify>
-      <Update>false</Update>
-      <Erase>false</Erase>
+      <verify>true</verify>
+      <Update>true</Update>
+      <Erase>true</Erase>
       <Certificate></Certificate>
       <Signature></Signature>
    </Filename>
@@ -213,9 +213,9 @@
          <ModeEntry name="PublicWrite" checked="false"/>
          <ModeEntry name="PublicRead" checked="false"/>
       </mode>
-      <verify>false</verify>
-      <Update>false</Update>
-      <Erase>false</Erase>
+      <verify>true</verify>
+      <Update>true</Update>
+      <Erase>true</Erase>
       <Certificate></Certificate>
       <Signature></Signature>
    </Filename>

@@ -57,7 +57,7 @@ typedef enum
     MCU_DO2_IND = 1,
     MCU_DO3_IND = 2,
     MCU_DO4_IND = 3,
-    MCU_ALL_DO_IND = 4;
+    MCU_ALL_DO_IND = 4
 } doNames;
 
 //*****************************************************************************

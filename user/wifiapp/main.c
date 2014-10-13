@@ -994,6 +994,12 @@ static void OOBTask(void *pvParameters)
     // waiting for an incoming TCP connection
     while( 1 )
     {
+		// GREEN LED ON Indicate NO Communication with Client
+		if(GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO) == 1)
+		{
+			GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
+		}
+		
         // accepts a connection form a TCP client, if there is any
         // otherwise returns SL_EAGAIN
         g_iTcpSocketID = sl_Accept(iSockID, ( struct SlSockAddr_t *)&sAddr, 
@@ -1022,16 +1028,12 @@ static void OOBTask(void *pvParameters)
 			}
 		}
 
-		// GREEN LED ON Indicate NO Communication with Client
-		if(GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO) == 0)
-		{
-			GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
-		}
+		
 
 		while(1)
 		{
 			// GREEN LED OFF Indicate YES Communication with Client
-			if(GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO) == 1)
+			if(GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO) == 0)
 			{
 				GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
 			}
@@ -1072,10 +1074,10 @@ static void OOBTask(void *pvParameters)
 				g_cBsdBuf[5] = GPIO_IF_DOStatus(MCU_DO2_IND);
 				g_cBsdBuf[6] = GPIO_IF_DOStatus(MCU_DO3_IND);
 				g_cBsdBuf[7] = GPIO_IF_DOStatus(MCU_DO4_IND);
-				g_cBsdBuf[8] = 0x00;
+				//g_cBsdBuf[8] = 0x00;
 				//sTestBufLen = 6;
 		        // sending packet
-		        iStatus = sl_Send(g_iTcpSocketID, g_cBsdBuf, 9, 0 );
+		        iStatus = sl_Send(g_iTcpSocketID, g_cBsdBuf, 8, 0 );
 		        if( iStatus <= 0 )
 		        {
 					UART_PRINT("[WARN] Send ERROR!\n");
@@ -1139,7 +1141,7 @@ void TimerCycleIntHandler(void)
 			if(g_sDO[i].loopnum == 0)
 			{
 				g_sDO[i].flag = FALSE;
-				GPIO_IF_LedToggle(i);
+				GPIO_IF_DOToggle(i);
 				g_sDO[i].cmd = DO_CMD_DEFAULT;
 			}
 		}
@@ -1357,8 +1359,10 @@ void main()
     GPIO_IF_LedConfigure(LED1|LED2);
     //Turn On and Off the LEDs
     GPIO_IF_LedOn(MCU_ALL_LED_IND);
-	MAP_UtilsDelay(800000);
+	UART_PRINT("ON %d, should be 0\n", GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO));
+	MAP_UtilsDelay(8000000);
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
+	UART_PRINT("OFF %d, shoule be 1\n", GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO));
     
     //
     // Simplelinkspawntask

@@ -76,6 +76,7 @@ int parseDOCmd(unsigned char ucBuf[], int iLen)
 							{
 								g_sDO[iChn - 1].flag = TRUE;
 							}
+							UART_PRINT("Chn %d Toggle!\n", iChn);
 							break;
 						default:
 							UART_PRINT("[WARN] DO Command ERROR!\n");
@@ -104,6 +105,8 @@ int parseDOCmd(unsigned char ucBuf[], int iLen)
 		UART_PRINT("[WARN] Received Message len error!\n");
 		return -1;
 	}
+        
+        return 0;
 }
 
 
