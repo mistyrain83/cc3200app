@@ -282,6 +282,12 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
         {
             slWlanConnectAsyncResponse_t*  pEventData = NULL;
 
+			// RED LED ON if Disconnect from AP
+			if(GPIO_IF_LedStatus(MCU_RED_LED_GPIO) == 1)
+			{
+				GPIO_IF_LedOn(MCU_RED_LED_GPIO);
+			}
+
             CLR_STATUS_BIT(g_ulStatus, STATUS_BIT_CONNECTION);
             CLR_STATUS_BIT(g_ulStatus, STATUS_BIT_IP_AQUIRED);
 
@@ -415,6 +421,12 @@ void SimpleLinkNetAppEventHandler(SlNetAppEvent_t *pNetAppEvent)
         case SL_NETAPP_IPV4_IPACQUIRED_EVENT:
         {
             SlIpV4AcquiredAsync_t *pEventData = NULL;
+
+			// RED LED Off Indicate acquired IP address
+			if(GPIO_IF_LedStatus(MCU_RED_LED_GPIO) == 0)
+			{
+				GPIO_IF_LedOff(MCU_RED_LED_GPIO);
+			}
 
             SET_STATUS_BIT(g_ulStatus, STATUS_BIT_IP_AQUIRED);
 
@@ -1236,6 +1248,7 @@ DisplayBanner(char * AppName)
     UART_PRINT("\n\n\n\r");
     UART_PRINT("\t\t *************************************************\n\r");
     UART_PRINT("\t\t     CC3200 %s Application       \n\r", AppName);
+	UART_PRINT("\t  Application Version  %s\n\r", APPLICATION_VERSION);
     UART_PRINT("\t\t *************************************************\n\r");
     UART_PRINT("\n\n\n\r");
 }
