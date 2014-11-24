@@ -1,0 +1,15 @@
+
+将底板的PA15（R31）焊接一个开关，烧写是闭合开关，运行时打开开关。
+烧写的配置文件在cc3200app\user\wifiapp\html目录下
+U_TXD 接USB转串口的TXD
+U_RXD 接USB转串口的RXD
+GND 接USB转串口的GND
+VCC  接电源 5-12V
+
+
+RELAY V3.3
+RLY    con  WIFI  CC3200   底板  LED
+OUT1 - 20 - IO2 - PIN62 - PC2  - D9
+OUT2 - 24 - PWM1 - PIN64 - PB7 - D15
+OUT3 - 12 - IO1 - PIN61  - PC6 - D5
+OUT4 - 10 - AD2 - PIN59  - PA4 - D16

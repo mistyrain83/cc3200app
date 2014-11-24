@@ -98,7 +98,7 @@
       <Type>blob</Type>
       <Storage>SFLASH</Storage>
       <MaxSize>0</MaxSize>
-      <url>${sessionDir}/../../ewarm/Release/Exe/oob.bin</url>
+      <url>D:\GitHub\cc3200app\user\wifiapp\ewarm\Release\Exe\oob.bin</url>
       <mode>
          <ModeEntry name="Rollback" checked="false"/>
          <ModeEntry name="Secured" checked="false"/>
