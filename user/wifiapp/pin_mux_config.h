@@ -1,4 +1,7 @@
 //*****************************************************************************
+// pin_mux_config.h
+//
+// configure the device pins for different signals
 //
 // Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/ 
 // 
@@ -33,15 +36,14 @@
 //
 //*****************************************************************************
 
-// This file was automatically generated on 7/21/2014 at 3:06:20 PM
-// by TI PinMux version 3.0.334
+// This file was automatically generated on 2014年12月14日 at 下午7:13:21
+// by TI PinMux version 3.0.334 
 //
 //*****************************************************************************
 
-#ifndef __PINMUX_H__
-#define __PINMUX_H__
+#ifndef __PIN_MUX_CONFIG_H__
+#define __PIN_MUX_CONFIG_H__
 
 extern void PinMuxConfig(void);
 
-#endif //  __PINMUX_H__
-
+#endif //  __PIN_MUX_CONFIG_H__

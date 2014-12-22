@@ -52,8 +52,9 @@
 
 #include "main.h"
 
-#define APPLICATION_VERSION              "0.1.0"
-#define APP_NAME                         "Wifi App"
+#define APPLICATION_VERSION              "0.1.1"
+#define APP_NAME_RELAY					"Wifi App Board RELAY"
+#define APP_NAME_PUCK                   "Wifi App Board PUCK"
 #define OOB_TASK_PRIORITY                1
 #define SPAWN_TASK_PRIORITY              9
 #define OOB_STACK_SIZE                   2048
@@ -1357,9 +1358,16 @@ void main()
     #ifndef NOTERM
     InitTerm();
 	#endif
+
+	//
+    // Display Banner
+    //
+	#if defined(P_RELAY_BOARD)
+	DisplayBanner(APP_NAME_RELAY);
+	#elif defined(P_PUCK_BOARD)
+	DisplayBanner(APP_NAME_PUCK);
+	#endif
     
-    DisplayBanner(APP_NAME);
-	
 	//
 	// DO Init
 	//

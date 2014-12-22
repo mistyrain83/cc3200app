@@ -33,87 +33,24 @@
 //
 //*****************************************************************************
 
-// This file was automatically generated on 7/21/2014 at 3:06:20 PM
-// by TI PinMux version 3.0.334
-//
-//*****************************************************************************
-
-#include "pinmux.h"
-#include "hw_types.h"
-#include "hw_memmap.h"
-#include "hw_gpio.h"
-#include "pin.h"
-#include "rom.h"
-#include "rom_map.h"
-#include "gpio.h"
-#include "prcm.h"
-
-//*****************************************************************************
-void
-PinMuxConfig(void)
-{
-    //
-    // Enable Peripheral Clocks 
-    //
-    MAP_PRCMPeripheralClkEnable(PRCM_UARTA0, PRCM_RUN_MODE_CLK);
-	MAP_PRCMPeripheralClkEnable(PRCM_GPIOA0, PRCM_RUN_MODE_CLK);
-	MAP_PRCMPeripheralClkEnable(PRCM_GPIOA3, PRCM_RUN_MODE_CLK);
+/**
+  * @brief  Uncomment the line corresponding to the STMicroelectronics evaluation
+  *   board used in your application.
+  *
+  *  Tip: To avoid modifying this file each time you need to switch between these
+  *       boards, you can define the board in your toolchain compiler preprocessor.
+  */
+#if !defined (P_RELAY_BOARD) && !defined (P_PUCK_BOARD)
+    //#define P_RELAY_BOARD
+    //#define P_PUCK_BOARD
+#endif
 
 #if defined(P_RELAY_BOARD)
-	MAP_PRCMPeripheralClkEnable(PRCM_GPIOA1, PRCM_RUN_MODE_CLK);
-#endif // P_RELAY_BOARD
+#include "BOARD_RELAY/rom_pin_mux_config.c"
+#elif defined(P_PUCK_BOARD)
+#include "BOARD_PUCK/rom_pin_mux_config.c"
+#else
+#error "Please select first the BOARD to be used (BOARD_RELAY, BOARD_PUCK)"
+#endif
 
-    //
-    // Configure PIN_55 for UART0 UART0_TX
-    //
-	MAP_PinTypeUART(PIN_55, PIN_MODE_3);
 
-	//
-    // Configure PIN_57 for UART0 UART0_RX
-    //
-	MAP_PinTypeUART(PIN_57, PIN_MODE_3);
-
-	//
-    // Configure PIN_50 for GPIO Output
-    //
-	MAP_PinTypeGPIO(PIN_50, PIN_MODE_0, false);
-	MAP_GPIODirModeSet(GPIOA0_BASE, 0x1, GPIO_DIR_MODE_OUT);
-
-	//
-    // Configure PIN_58 for GPIO Input
-    //
-	MAP_PinTypeGPIO(PIN_58, PIN_MODE_0, false);
-	MAP_GPIODirModeSet(GPIOA0_BASE, 0x8, GPIO_DIR_MODE_IN);
-
-	//
-    // Configure PIN_53 for GPIO Output
-    //
-	MAP_PinTypeGPIO(PIN_53, PIN_MODE_0, false);
-	MAP_GPIODirModeSet(GPIOA3_BASE, 0x40, GPIO_DIR_MODE_OUT);
-
-#if defined(P_RELAY_BOARD)
-	//
-    // Configure PIN_59 for GPIO Output
-    //
-	MAP_PinTypeGPIO(PIN_59, PIN_MODE_0, false);
-	MAP_GPIODirModeSet(GPIOA0_BASE, 0x10, GPIO_DIR_MODE_OUT);
-
-	//
-    // Configure PIN_61 for GPIO Output
-    //
-	MAP_PinTypeGPIO(PIN_61, PIN_MODE_0, false);
-	MAP_GPIODirModeSet(GPIOA0_BASE, 0x40, GPIO_DIR_MODE_OUT);
-
-	//
-    // Configure PIN_62 for GPIO Output
-    //
-	MAP_PinTypeGPIO(PIN_62, PIN_MODE_0, false);
-	MAP_GPIODirModeSet(GPIOA0_BASE, 0x80, GPIO_DIR_MODE_OUT);
-
-	//
-    // Configure PIN_64 for GPIO Output
-    //
-	MAP_PinTypeGPIO(PIN_64, PIN_MODE_0, false);
-	MAP_GPIODirModeSet(GPIOA1_BASE, 0x2, GPIO_DIR_MODE_OUT);
-#endif // P_RELAY_BOARD
-}
