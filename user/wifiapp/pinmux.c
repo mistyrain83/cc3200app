@@ -40,15 +40,15 @@
   *  Tip: To avoid modifying this file each time you need to switch between these
   *       boards, you can define the board in your toolchain compiler preprocessor.
   */
-#if !defined (P_RELAY_BOARD) && !defined (P_PUCK_BOARD)
+#if !defined (P_RELAY_BOARD) && !defined (P_PUCK_SWITCH_BOARD)
     //#define P_RELAY_BOARD
-    //#define P_PUCK_BOARD
+    #define P_PUCK_SWITCH_BOARD
 #endif
 
 #if defined(P_RELAY_BOARD)
 #include "BOARD_RELAY/rom_pin_mux_config.c"
-#elif defined(P_PUCK_BOARD)
-#include "BOARD_PUCK/rom_pin_mux_config.c"
+#elif defined(P_PUCK_SWITCH_BOARD)
+#include "BOARD_PUCK_SWITCH/rom_pin_mux_config.c"
 #else
 #error "Please select first the BOARD to be used (BOARD_RELAY, BOARD_PUCK)"
 #endif

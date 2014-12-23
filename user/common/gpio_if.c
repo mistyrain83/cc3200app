@@ -47,14 +47,36 @@ static unsigned long ulReg[]=
 //*****************************************************************************
 // Variables to store TIMER Port,Pin values
 //*****************************************************************************
-unsigned int g_uiLED1Port = 3,g_uiLED2Port = 0;
-unsigned char g_ucLED1Pin,g_ucLED2Pin;
+// LED
+unsigned int g_uiLED1Port = 3;
+unsigned int g_uiLED2Port = 0;
 
-unsigned int g_uiDO1Port = 0,g_uiDO2Port = 0,g_uiDO3Port = 0,g_uiDO4Port = 0;
-unsigned char g_ucDO1Pin,g_ucDO2Pin,g_ucDO3Pin,g_ucDO4Pin;
+unsigned char g_ucLED1Pin;
+unsigned char g_ucLED2Pin;
 
-#define PIN_LED1 0
-#define PIN_LED2 30
+// BUTTON
+unsigned int g_uiBUTTONPort = 0;
+
+unsigned char g_ucBUTTONPin;
+
+// DO
+unsigned int g_uiDO1Port = 0;
+unsigned int g_uiDO2Port = 0;
+unsigned int g_uiDO3Port = 0;
+unsigned int g_uiDO4Port = 0;
+
+unsigned char g_ucDO1Pin;
+unsigned char g_ucDO2Pin;
+unsigned char g_ucDO3Pin;
+unsigned char g_ucDO4Pin;
+
+//*****************************************************************************
+// Macros
+//*****************************************************************************
+#define PIN_LED_RED 	0
+#define PIN_LED_GREEN 	30
+
+#define PIN_BUTTON_PUSH 3
 
 #define PIN_DO1 7
 #define PIN_DO2 9
@@ -100,22 +122,55 @@ void
 GPIO_IF_LedConfigure(unsigned char ucPins)
 {
 
-  if(ucPins & LED1)
+  if(ucPins & LED_RED)
   {
-    GPIO_IF_GetPortNPin(PIN_LED1,
+    GPIO_IF_GetPortNPin(PIN_LED_RED,
                         &g_uiLED1Port,
                         &g_ucLED1Pin);
   }
 
-  if(ucPins & LED2)
+  if(ucPins & LED_GREEN)
   {
-    GPIO_IF_GetPortNPin(PIN_LED2,
+    GPIO_IF_GetPortNPin(PIN_LED_GREEN,
                   		&g_uiLED2Port,
           				&g_ucLED2Pin);
   }
 
 }
 
+//*****************************************************************************
+//
+//! GPIO Enable & Configuration
+//!
+//! \param  ucPins is the bit-pack representation of BUTTON
+//!         LSB:GP09-GP10-GP11:MSB
+//!
+//! \return None
+//
+//*****************************************************************************
+void
+GPIO_IF_ButtonConfigure(unsigned char ucPins)
+{
+
+  if(ucPins & BUTTON_PUSH)
+  {
+    GPIO_IF_GetPortNPin(PIN_BUTTON_PUSH,
+                        &g_uiBUTTONPort,
+                        &g_ucBUTTONPin);
+  }
+
+}
+
+//*****************************************************************************
+//
+//! GPIO Enable & Configuration
+//!
+//! \param  ucPins is the bit-pack representation of DOs
+//!         LSB:GP09-GP10-GP11:MSB
+//!
+//! \return None
+//
+//*****************************************************************************
 void
 GPIO_IF_DOConfigure(unsigned char ucPins)
 {
@@ -172,7 +227,7 @@ GPIO_IF_LedOn(char ledNum)
         case MCU_GREEN_LED_GPIO:
         {
           /* Switch ON GREEN LED */
-          GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 0);
+          GPIO_IF_Set(PIN_LED_GREEN, g_uiLED2Port, g_ucLED2Pin, 0);
           break;
         }
         
@@ -183,15 +238,16 @@ GPIO_IF_LedOn(char ledNum)
         case MCU_RED_LED_GPIO:
         {
           /* Switch ON RED LED */
-          GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 0);
+          GPIO_IF_Set(PIN_LED_RED, g_uiLED1Port, g_ucLED1Pin, 0);
           break;
         }
-		
+
+		case MCU_LOOP_FOREVER_GPIO:
         case MCU_ALL_LED_IND:
         {
           /* Switch ON ALL LEDs LED */
-          GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 0);
-          GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 0);
+          GPIO_IF_Set(PIN_LED_GREEN, g_uiLED2Port, g_ucLED2Pin, 0);
+          GPIO_IF_Set(PIN_LED_RED, g_uiLED1Port, g_ucLED1Pin, 0);
           break;
         }
         default:
@@ -260,7 +316,7 @@ GPIO_IF_LedOff(char ledNum)
     case MCU_GREEN_LED_GPIO:
     {
       /* Switch OFF GREEN LED */
-      GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 1);
+      GPIO_IF_Set(PIN_LED_GREEN, g_uiLED2Port, g_ucLED2Pin, 1);
       break;
     }
     
@@ -271,15 +327,15 @@ GPIO_IF_LedOff(char ledNum)
     case MCU_RED_LED_GPIO:
     {
       /* Switch OFF RED LED */
-      GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 1);
+      GPIO_IF_Set(PIN_LED_RED, g_uiLED1Port, g_ucLED1Pin, 1);
       break;
     }
 	
     case MCU_ALL_LED_IND:
     {
       /* Switch OFF ALL LEDs LED */
-      GPIO_IF_Set(PIN_LED2, g_uiLED2Port, g_ucLED2Pin, 1);
-      GPIO_IF_Set(PIN_LED1, g_uiLED1Port, g_ucLED1Pin, 1);
+      GPIO_IF_Set(PIN_LED_GREEN, g_uiLED2Port, g_ucLED2Pin, 1);
+      GPIO_IF_Set(PIN_LED_RED, g_uiLED1Port, g_ucLED1Pin, 1);
       break;
     }
     default:
@@ -344,12 +400,12 @@ GPIO_IF_LedStatus(unsigned char ucGPIONum)
   {
     case MCU_RED_LED_GPIO:
     {
-      ucLEDStatus = GPIO_IF_Get(PIN_LED1, g_uiLED1Port, g_ucLED1Pin);
+      ucLEDStatus = GPIO_IF_Get(PIN_LED_RED, g_uiLED1Port, g_ucLED1Pin);
       break;
     }
 	case MCU_GREEN_LED_GPIO:
     {
-      ucLEDStatus = GPIO_IF_Get(PIN_LED2, g_uiLED2Port, g_ucLED2Pin);
+      ucLEDStatus = GPIO_IF_Get(PIN_LED_GREEN, g_uiLED2Port, g_ucLED2Pin);
       break;
     }
     default:
@@ -358,6 +414,45 @@ GPIO_IF_LedStatus(unsigned char ucGPIONum)
   return ucLEDStatus;
 }
 
+//*****************************************************************************
+//
+//!  \brief This function returns LED current Status
+//!
+//!  \param[in] ucGPIONum is the GPIO to which the LED is connected
+//!                MCU_GREEN_LED_GPIO\MCU_RED_LED_GPIO
+//!
+//!
+//!  \return 1: BUTTON UP, 0: BUTTON DOWN
+//
+//*****************************************************************************
+unsigned char
+GPIO_IF_ButtonStatus(unsigned char ucGPIONum)
+{
+  unsigned char ucLEDStatus;
+  switch(ucGPIONum)
+  {
+    case MCU_BUTTON_IND:
+    {
+      ucLEDStatus = GPIO_IF_Get(PIN_BUTTON_PUSH, g_uiBUTTONPort, g_ucBUTTONPin);
+      break;
+    }
+    default:
+        ucLEDStatus = 0;
+  }
+  return ucLEDStatus;
+}
+
+//*****************************************************************************
+//
+//!  \brief This function returns LED current Status
+//!
+//!  \param[in] ucGPIONum is the GPIO to which the LED is connected
+//!                MCU_GREEN_LED_GPIO\MCU_RED_LED_GPIO
+//!
+//!
+//!  \return 1: DO ON, 0: DO OFF
+//
+//*****************************************************************************
 unsigned char
 GPIO_IF_DOStatus(unsigned char ucGPIONum)
 {

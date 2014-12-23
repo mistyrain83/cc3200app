@@ -45,7 +45,7 @@
 // App Includes
 //#include "device_status.h"
 #include "smartconfig.h"
-#include "pinmux.h"
+#include "pin_mux_config.h"
 #include "communication.h"
 #include "do.h"
 #include "pwmout.h"
@@ -54,7 +54,7 @@
 
 #define APPLICATION_VERSION              "0.1.1"
 #define APP_NAME_RELAY					"Wifi App Board RELAY"
-#define APP_NAME_PUCK                   "Wifi App Board PUCK"
+#define APP_NAME_PUCK_SWITCH                   "Wifi App Board PUCK SWITCH"
 #define OOB_TASK_PRIORITY                1
 #define SPAWN_TASK_PRIORITY              9
 #define OOB_STACK_SIZE                   2048
@@ -934,16 +934,13 @@ long ConnectToNetwork()
 //****************************************************************************
 static void ReadDeviceConfiguration()
 {
-    unsigned int uiGPIOPort;
-    unsigned char pucGPIOPin;
-    unsigned char ucPinValue;
+    unsigned char 	ucPinValue; // 1: BUTTON UP, 0: BUTTON DOWN
         
-    // Read GPIO
-    GPIO_IF_GetPortNPin(SH_GPIO_3, &uiGPIOPort, &pucGPIOPin);
-    ucPinValue = GPIO_IF_Get(SH_GPIO_3, uiGPIOPort, pucGPIOPin);
+    // Get Button Status
+	ucPinValue = GPIO_IF_ButtonStatus(MCU_BUTTON_IND);
         
-    // If Button be pressed, Mode is AP
-    if(ucPinValue == 0)
+    // If Button be pressed down, Mode is AP
+    if(0 == ucPinValue)
     {
         //AP Mode
         g_uiDeviceModeConfig = ROLE_AP;
@@ -958,7 +955,7 @@ static void ReadDeviceConfiguration()
 
 //****************************************************************************
 //
-//!    \brief OOB Application Main Task - Initializes SimpleLink Driver and
+//! \brief OOB Application Main Task - Initializes SimpleLink Driver and
 //!                                              Handles HTTP Requests
 //! \param[in]                  pvParameters is the data passed to the Task
 //!
@@ -967,17 +964,17 @@ static void ReadDeviceConfiguration()
 //****************************************************************************
 static void OOBTask(void *pvParameters)
 {
-	int i;
-    long   lRetVal = -1;
+	int 			i = 0;
+    long   			lRetVal = -1;
 	SlSockAddrIn_t  sAddr;
 	int             iAddrSize;
     int             iSockID;
     int             iStatus;
-	unsigned short usLoopNum;
+	unsigned short 	usLoopNum;
 	long            lNonBlocking = 1;
 	int             iCounter;
 
-    //Read Device Mode Configuration
+    // Read Device Mode Configuration
     ReadDeviceConfiguration();
 
     //Connect to Network
@@ -1110,14 +1107,14 @@ static void OOBTask(void *pvParameters)
 
 //****************************************************************************
 //
-//! Process the main async event
+//! Period Cycles Timer; Process the main async event
 //!
 //! \param  none
 //!
 //! \return none
 //
 //****************************************************************************
-void TimerCycleIntHandler(void)
+void TimerA1IntHandler(void)
 {
 	int i = 0;
 	//
@@ -1172,7 +1169,7 @@ void TimerCycleIntHandler(void)
 //! \return none
 //!
 //*****************************************************************************
-void SwIntHandler(void)
+void ButtonIntHandler(void)
 {
 	static long L_prevButtonState = 0x00;    
 	static long L_buttonState     = 0x00;
@@ -1211,7 +1208,7 @@ void SwIntHandler(void)
 //! \return none
 //!
 //*****************************************************************************
-void TimerIntHandler(void)
+void TimerA0IntHandler(void)
 {
 	//
     // Clear the timer interrupt.
@@ -1306,7 +1303,10 @@ void main()
     //
     PinMuxConfig();
 
-	// Init button timer interrupt handler
+	////////////////////////////////////////////////////////////////
+	// Configure button timer and interrupt handler
+	// BUTTON - PIN_58 - GPIO_03
+	////////////////////////////////////////////////////////////////
 	//
     // Configuring the timers
     //
@@ -1314,15 +1314,14 @@ void main()
 	//
     // Setup the interrupts for the timer timeouts.
     //
-    Timer_IF_IntSetup(TIMERA0_BASE, TIMER_A, TimerIntHandler);
+    Timer_IF_IntSetup(TIMERA0_BASE, TIMER_A, TimerA0IntHandler);
 
-	//
     // Init button interrupt handler
-    // BUTTON - PIN_58 - GPIO_03
-    //
-    GPIO_IF_ConfigureNIntEnable(BUTTON_PORT, BUTTON_PINS, GPIO_BOTH_EDGES, SwIntHandler);
+    GPIO_IF_ConfigureNIntEnable(BUTTON_PORT, BUTTON_PINS, GPIO_FALLING_EDGE, ButtonIntHandler);
 
-	// Init cycle timer interrupt handler
+	////////////////////////////////////////////////////////////////
+	// Init Periodic timer interrupt handler, 100ms
+	////////////////////////////////////////////////////////////////
 	//
     // Configuring the timers
     //
@@ -1330,24 +1329,12 @@ void main()
 	//
     // Setup the interrupts for the timer timeouts.
     //
-    Timer_IF_IntSetup(TIMERA1_BASE, TIMER_A, TimerCycleIntHandler);
+    Timer_IF_IntSetup(TIMERA1_BASE, TIMER_A, TimerA1IntHandler);
 	//
     // Turn on the timers
     //
 	Timer_IF_Start(TIMERA1_BASE, TIMER_A,
                   PERIODIC_TEST_CYCLES * PERIODIC_TEST_LOOPS / 50);
-
-#if defined(P_DIMMER_BOARD)
-	// Init timer pwm
-	//
-    // TIMERA3 (TIMER A) as GREEN of RGB light. GPIO 11 --> PWM_7
-    //
-    SetupTimerPWMMode(TIMERA3_BASE, TIMER_B, 
-            (TIMER_CFG_SPLIT_PAIR | TIMER_CFG_A_PWM | TIMER_CFG_B_PWM), 1);
-
-    MAP_TimerEnable(TIMERA3_BASE,TIMER_B);
-	UpdateDutyCycle(TIMERA3_BASE, TIMER_B, 0);
-#endif // P_DIMMER_BOARD
 
     // Initialize Global Variables
     InitializeAppVariables();
@@ -1364,8 +1351,8 @@ void main()
     //
 	#if defined(P_RELAY_BOARD)
 	DisplayBanner(APP_NAME_RELAY);
-	#elif defined(P_PUCK_BOARD)
-	DisplayBanner(APP_NAME_PUCK);
+	#elif defined(P_PUCK_SWITCH_BOARD)
+	DisplayBanner(APP_NAME_PUCK_SWITCH);
 	#endif
     
 	//
@@ -1373,18 +1360,23 @@ void main()
 	//
 	GPIO_IF_DOConfigure(DO1|DO2|DO3|DO4);
     GPIO_IF_DOOff(MCU_ALL_DO_IND);
+
+	//
+    // BUTTON Init
+    //
 	
     //
     // LED Init
     //
-    GPIO_IF_LedConfigure(LED1|LED2);
-    //Turn On and Off the LEDs
+    GPIO_IF_LedConfigure(LED_RED|LED_GREEN);
+	//
+    // Turn On and Then Turn Off the RED and GREEN LEDs
+    //
     GPIO_IF_LedOn(MCU_ALL_LED_IND);
-	UART_PRINT("ON %d, should be 0\n", GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO));
+	// Delay ~0.3 sec
 	MAP_UtilsDelay(8000000);
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
-	UART_PRINT("OFF %d, shoule be 1\n", GPIO_IF_LedStatus(MCU_GREEN_LED_GPIO));
-    
+	
     //
     // Simplelinkspawntask
     //
@@ -1392,7 +1384,7 @@ void main()
     if(lRetVal < 0)
     {
         ERR_PRINT(lRetVal);
-		GPIO_IF_LedOn(MCU_RED_LED_GPIO);
+		GPIO_IF_LedOn(MCU_LOOP_FOREVER_GPIO);
         LOOP_FOREVER();
     } 
 
@@ -1405,7 +1397,7 @@ void main()
     if(lRetVal < 0)
     {
         ERR_PRINT(lRetVal);
-		GPIO_IF_LedOn(MCU_RED_LED_GPIO);
+		GPIO_IF_LedOn(MCU_LOOP_FOREVER_GPIO);
         LOOP_FOREVER();
     }
 	
@@ -1416,7 +1408,7 @@ void main()
 
     while (1)
     {
-
+		// GPIO_IF_LedToggle(MCU_RED_LED_GPIO);
     }
 
 }

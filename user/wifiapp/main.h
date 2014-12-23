@@ -18,18 +18,14 @@ extern "C"
 #define BUTTON_PINS 0x8
 
 
-
-
-void SwIntHandler(void);
 static void InitializeAppVariables(void);
-
 static int ConfigureMode(int iMode);
 long ConnectToNetwork();
 static void ReadDeviceConfiguration();
 static void OOBTask(void *pvParameters);
-void TimerCycleIntHandler(void);
-void SwIntHandler(void);
-void TimerIntHandler(void);
+void TimerA1IntHandler(void);
+void ButtonIntHandler(void);
+void TimerA0IntHandler(void);
 static void DisplayBanner(char * AppName);
 static void BoardInit(void);
 
